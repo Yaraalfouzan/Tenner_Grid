@@ -1,6 +1,7 @@
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.Scanner;
 
 public class tennerGrid {
     //private int[][] grid;
@@ -8,7 +9,7 @@ public class tennerGrid {
     static int numColumns=10;
     static int consistency;
     static int assignments;
-
+static Scanner input=new Scanner(System.in);
   
 
     // Method to generate an initial state adhering to the rules
@@ -46,11 +47,11 @@ public class tennerGrid {
     
     
     
-    static boolean solveTennerGrid(int[][] grid ) {
+    static boolean solveTennerGrid(int[][] grid , int type) {
         int row = -1;
         int col = -1;
         boolean isEmpty = true;
-
+       
         // Find an empty cell
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 10; j++) {
@@ -70,13 +71,13 @@ public class tennerGrid {
         if (isEmpty) {
             return true;
         }
-
+      
         // Try filling the empty cell with numbers from 0 to 9
         for (int num = 0; num <= 9; num++) {
-            if (isValid( grid, row, col, num,1)) {
+            if (isValid( grid, row, col, num, type)) {
                 grid[row][col] = num;
                 assignments++;
-                if ( solveTennerGrid(grid) ) {
+                if ( solveTennerGrid(grid,type) ) {
                     return true;
                 }
                 grid[row][col] = -1; // Backtrack
@@ -88,25 +89,27 @@ public class tennerGrid {
     }
 
     static boolean isValid(int [][] grid ,int row, int col, int num,int type) {
+        //checks that there is  no reptition of values in same row
         for (int i = 0; i < numColumns; i++) {
             consistency++;
             if (grid[row][i] == num) {
                 return false;
         } }
-       
+       //checks no adjacent num are the same
             try{
             if (grid[row - 1][col] == num||grid[row + 1][col] == num || grid[row][col - 1] == num||(grid[row][col + 1] == num||grid[row + 1][col + 1] == num||
                 grid[row - 1][col - 1] == num||grid[row + 1][col - 1] == num ||grid[row - 1][col + 1] == num)) {
                     consistency++;
                     return false;
                 } } catch(Exception e){consistency--;}
-       
+       // check sum of column
         int sum = 0;
         for (int i = 0; i < numRows -1; i++) {
             if(grid[i][col]!=-1)
                 sum += grid[i][col];
         }
         consistency++;
+        //check sum after adding value to column
         if (type==1){
         sum += num;
         if (sum > grid[numRows -1][col])
@@ -114,6 +117,15 @@ public class tennerGrid {
         if (row == numRows -2 && sum != grid[numRows -1][col])
             return false;
         return true;}
+        if (type==2){
+            // Forward checking: reduce the domain of neighboring variables
+    
+
+        }
+        if (type==3){
+
+            //use froward checking + mrv huerstic
+        }
 
         return true;
      }
@@ -139,8 +151,11 @@ public class tennerGrid {
             
             System.out.println("Initial State:");
         printGrid(f);
+        System.out.println("choose an option 1=backtracking \n 2=forward checking \n 3=forward checking with MRV ");
+        int type= input.nextInt();
         System.out.println("solution:");
-        solveTennerGrid(f);
+        
+        solveTennerGrid(f,type);
         printGrid(f);
         System.out.println("/////////////:");
         System.out.println("Initial State:");
@@ -148,7 +163,7 @@ public class tennerGrid {
 
 
         long startTime = System.currentTimeMillis();
-       if(solveTennerGrid(solver)){
+       if(solveTennerGrid(solver,type)){
        
         long endTime = System.currentTimeMillis();
         System.out.println("\nSolution Found:");
