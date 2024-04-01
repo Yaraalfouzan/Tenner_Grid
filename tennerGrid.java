@@ -1,3 +1,4 @@
+
 import java.util.Arrays;
 import java.util.Random;
 
@@ -138,11 +139,13 @@ public class tennerGrid {
             
             System.out.println("Initial State:");
         printGrid(f);
+        System.out.println("solution:");
         solveTennerGrid(f);
         printGrid(f);
         System.out.println("/////////////:");
         System.out.println("Initial State:");
         printGrid(solver);
+
 
         long startTime = System.currentTimeMillis();
        if(solveTennerGrid(solver)){
@@ -154,7 +157,8 @@ public class tennerGrid {
         System.out.println("Number of Consistency Checks: " + consistency);
         System.out.println("Time Used to Solve the Problem: " + (endTime - startTime) + " milliseconds");
 
-    }
-            System.out.println("No solution found!");
+}
+else
+      System.out.println("No solution found!");
         
     }}

@@ -1,0 +1,55 @@
+public class tennersolve {
+    public static void main(String[] args) {
+        int[][] grid = generateRandomGrid(10, 4);
+        int[][] sums = generateRandomSums(10, 4);
+
+        TennerGridCSP csp = new TennerGridCSP(grid, sums);
+        int[][] assignment = new int[10][4]; // Initialize with zeros
+
+        System.out.println("Initial Grid:");
+        csp.printGrid(grid);
+        System.out.println("Column Sums:");
+        csp.printGrid(sums);
+
+        long startTime = System.nanoTime();
+        boolean solved = csp.solveForwardChecking(assignment); // Change to solveForwardChecking for FC
+        long endTime = System.nanoTime();
+
+        if (solved) {
+            System.out.println("\nSolution Found:");
+            csp.printGrid(assignment);
+        } else {
+            System.out.println("\nNo solution found.");
+        }
+
+        long duration = (endTime - startTime) / 1000000; // Time in milliseconds
+        System.out.println("Time taken: " + duration + " milliseconds");
+    }
+
+    // Remaining code for random grid generation and column sums generation remains the same
+
+public static int[][] generateRandomGrid(int rows, int cols) {
+    Random rand = new Random();
+    int[][] grid = new int[rows][cols];
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            grid[i][j] = rand.nextInt(9) + 1; // Generate random numbers from 1 to 9
+        }
+    }
+    return grid;
+}
+
+public static int[][] generateRandomSums(int rows, int cols) {
+    Random rand = new Random();
+    int[][] sums = new int[rows][cols];
+    for (int j = 0; j < cols; j++) {
+        int sum = 0;
+        for (int i = 0; i < rows; i++) {
+            int num = rand.nextInt(9) + 1; // Generate random numbers from 1 to 9
+            sum += num;
+            sums[i][j] = sum;
+        }
+    }
+    return sums;
+}
+}
