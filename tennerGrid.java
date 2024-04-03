@@ -13,7 +13,7 @@ static Scanner input=new Scanner(System.in);
   
 
     // Method to generate an initial state adhering to the rules
-    static int[][] generateInitialState() {
+  public  static int[][] generateInitialState() {
 
         int[][] grid=new int[numRows][numColumns];
 
@@ -30,7 +30,7 @@ static Scanner input=new Scanner(System.in);
                 if (random.nextBoolean()) { // Randomly decide whether to fill the cell
                     
                         int num = random.nextInt(10); // Generate random number (0-9)
-                        if ( isValid(grid,row,col,num,0) ){
+                        if ( isValid(grid,row,col,num) ){
                         grid[row][col] = num;
                         grid[numRows - 1][col] += num;} 
                         
@@ -47,7 +47,7 @@ static Scanner input=new Scanner(System.in);
     
     
     
-    static boolean solveTennerGrid(int[][] grid , int type) {
+    public static boolean solveTennerGrid(int[][] grid ) {
         int row = -1;
         int col = -1;
         boolean isEmpty = true;
@@ -74,10 +74,10 @@ static Scanner input=new Scanner(System.in);
       
         // Try filling the empty cell with numbers from 0 to 9
         for (int num = 0; num <= 9; num++) {
-            if (isValid( grid, row, col, num, type)) {
+            if (isValid( grid, row, col, num)) {
                 grid[row][col] = num;
                 assignments++;
-                if ( solveTennerGrid(grid,type) ) {
+                if ( solveTennerGrid(grid) ) {
                     return true;
                 }
                 grid[row][col] = -1; // Backtrack
@@ -88,7 +88,54 @@ static Scanner input=new Scanner(System.in);
         return false;
     }
 
-    static boolean isValid(int [][] grid ,int row, int col, int num,int type) {
+    static boolean solveforwardChecking(int[][]grid){
+        
+            int row = -1;
+            int col = -1;
+            boolean isEmpty = true;
+        
+            // Find an empty cell
+            for (int i = 0; i < numRows; i++) {
+                for (int j = 0; j < numColumns; j++) {
+                    if (grid[i][j] == -1) {
+                        row = i;
+                        col = j;
+                        isEmpty = false;
+                        break;
+                    }
+                }
+                if (!isEmpty) {
+                    break;
+                }
+            }
+        
+            // If there is no empty cell, the grid is solved
+            if (isEmpty) {
+                return true;
+            }
+        
+            // Try filling the empty cell with numbers from 0 to 9
+            for (int num = 0; num <= 9; num++) {
+                if (isValid(grid, row, col, num)) {
+                    grid[row][col] = num;
+                    assignments++;
+                    if (solveForwardChecking(grid)) {
+                        return true;
+                    }
+                    grid[row][col] = -1; // Backtrack
+                    assignments++;
+                }
+            }
+        
+            return false;
+        }
+        
+
+
+
+
+    
+    static boolean isValid(int [][] grid ,int row, int col, int num) {
         //checks that there is  no reptition of values in same row
         for (int i = 0; i < numColumns; i++) {
             consistency++;
@@ -110,29 +157,19 @@ static Scanner input=new Scanner(System.in);
         }
         consistency++;
         //check sum after adding value to column
-        if (type==1){
+        
         sum += num;
         if (sum > grid[numRows -1][col])
             return false;
         if (row == numRows -2 && sum != grid[numRows -1][col])
             return false;
         return true;}
-        if (type==2){
-            // Forward checking: reduce the domain of neighboring variables
-    
+       
 
-        }
-        if (type==3){
+      
+        
 
-            //use froward checking + mrv huerstic
-        }
-
-        return true;
-     }
-
-
- 
-
+     
 
     // Method to print the gril
     static void printGrid(int [][] grid) {
@@ -143,6 +180,7 @@ static Scanner input=new Scanner(System.in);
     }
 
     public static void main(String[] args) {
+        long startTime,endTime;
         int[][] solver=generateInitialState();
         int f[][] = {
             {-1, 6,2,0,-1,-1,-1, 8, 5, 7}, {-1, 0,1,7, 8,-1,-1,-1, 9,-1}, { -1, 4,-1,-1, 2, -1, 3, 7, -1, 8}, { 13, 10, 8, 7, 19,16, 11, 19, 15, 17 }};
@@ -153,27 +191,77 @@ static Scanner input=new Scanner(System.in);
         printGrid(f);
         System.out.println("choose an option 1=backtracking \n 2=forward checking \n 3=forward checking with MRV ");
         int type= input.nextInt();
-        System.out.println("solution:");
         
-        solveTennerGrid(f,type);
-        printGrid(f);
+        
+        switch (type) {
+            case 1:
+            startTime = System.currentTimeMillis();
+            solveTennerGrid(f);
+            endTime = System.currentTimeMillis();
+            
+        System.out.println("/////////////:");
+       
+
+        if(solveTennerGrid(f)){
+       
+            System.out.println("solution:");
+            printGrid(f);
+            System.out.println("\nNumber of Variable Assignments: " + assignments);
+            System.out.println("N1umber of Consistency Checks: " + consistency);
+            System.out.println("Time Used to Solve the Problem: " + (endTime - startTime) + " milliseconds");
+    
+    }
+    else
+          System.out.println("No solution found!");
+            
+        
+                break;
+            case 2:
+            startTime = System.currentTimeMillis();
+            solveforwardChecking(f);
+            endTime = System.currentTimeMillis();
+     
+        System.out.println("/////////////:");
+       
+
+        if(solveTennerGrid(f)){
+           
+            System.out.println("solution:");
+            printGrid(f);
+            System.out.println("\nNumber of Variable Assignments: " + assignments);
+            System.out.println("N1umber of Consistency Checks: " + consistency);
+            System.out.println("Time Used to Solve the Problem: " + (endTime - startTime) + " milliseconds");
+    
+    }
+    else
+          System.out.println("No solution found!");
+            
+                
+                break;
+            
+            case 3:
+                break;
+        }
+    }}
+       // solveTennerGrid(f);
+        /*printGrid(f);
         System.out.println("/////////////:");
         System.out.println("Initial State:");
         printGrid(solver);
 
 
         long startTime = System.currentTimeMillis();
-       if(solveTennerGrid(solver,type)){
+       if(solveTennerGrid(f)){
        
         long endTime = System.currentTimeMillis();
         System.out.println("\nSolution Found:");
         printGrid(solver);
         System.out.println("\nNumber of Variable Assignments: " + assignments);
-        System.out.println("Number of Consistency Checks: " + consistency);
+        System.out.println("N1umber of Consistency Checks: " + consistency);
         System.out.println("Time Used to Solve the Problem: " + (endTime - startTime) + " milliseconds");
 
 }
 else
       System.out.println("No solution found!");
         
-    }}
+    }}*/
