@@ -304,7 +304,7 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
             printGrid(solver);
         }*/
         int type;
-        do{
+        //do{
         System.out.println("choose an option\n 1=backtracking \n 2=forward checking \n 3=forward checking with MRV or enter 4 to exit");
         type= input.nextInt();
         
@@ -403,7 +403,7 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
               System.out.println("Invalid input! Please enter a number from 1 to 4.");
               break;
             
-        }}while(type!=4)  ;  
+        }//}while(type!=4)  ;  
                 
                 
                 
