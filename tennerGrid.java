@@ -304,8 +304,8 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
             printGrid(solver);
         }*/
         int type;
-        //do{
-        System.out.println("choose an option\n 1=backtracking \n 2=forward checking \n 3=forward checking with MRV or enter 4 to exit");
+        
+        System.out.println("choose an option\n 1=backtracking \n 2=forward checking \n 3=forward checking with MRV ");
         type= input.nextInt();
         
         
@@ -323,7 +323,7 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
             System.out.println("solution of example:");
             printGrid(f);
             System.out.println("\nNumber of Variable Assignments: " + assignments);
-            System.out.println("N1umber of Consistency Checks: " + consistency);
+            System.out.println("Number of Consistency Checks: " + consistency);
             System.out.println("Time Used to Solve the Problem: " + (endTime - startTime) + " milliseconds");
     
     }
@@ -335,7 +335,7 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
             System.out.println("solution of random grid:");
             printGrid(solver);
             System.out.println("\nNumber of Variable Assignments: " + assignments);
-            System.out.println("N1umber of Consistency Checks: " + consistency);
+            System.out.println("Number of Consistency Checks: " + consistency);
             System.out.println("Time Used to Solve the Problem: " + (endTime - startTime) + " milliseconds");
     
     }
@@ -360,7 +360,7 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
                 System.out.println("solution:");
                 printGrid(f);
                 System.out.println("\nNumber of Variable Assignments: " + assignments);
-                System.out.println("N1umber of Consistency Checks: " + consistency);
+                System.out.println("Number of Consistency Checks: " + consistency);
                 System.out.println("Time Used to Solve the Problem: " + (endTime - startTime) + " milliseconds");
         
         }
@@ -387,7 +387,7 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
                 System.out.println("solution:");
                 printGrid(f);
                 System.out.println("\nNumber of Variable Assignments: " + assignments);
-                System.out.println("N1umber of Consistency Checks: " + consistency);
+                System.out.println("Number of Consistency Checks: " + consistency);
                 System.out.println("Time Used to Solve the Problem: " + (endTime - startTime) + " milliseconds");
         
 
@@ -396,14 +396,14 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
               System.out.println("No solution found!");
             break;
              
-            case 4:
+           /*  case 4:
               System.out.println("Exit program...");
-              break;
+              break;*/
           default:
-              System.out.println("Invalid input! Please enter a number from 1 to 4.");
+              System.out.println("Invalid input! Please enter a number from 1 to 3.");
               break;
             
-        }//}while(type!=4)  ;  
+        }
                 
                 
                 
