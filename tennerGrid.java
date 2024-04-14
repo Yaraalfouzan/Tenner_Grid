@@ -1,12 +1,10 @@
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
 public class tennerGrid {
-    //private int[][] grid;
+    private int[][] grid;
     static int numRows=4;
     static int numColumns=10;
     static int consistency;
@@ -292,13 +290,23 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
     public static void main(String[] args) {
         long startTime,endTime;
         int[][] solver=generateInitialState();
+        /*while(solver==null){
+            solver=generateInitialState();
+        }*/
+
         int f[][] = {
             {-1, 6,2,0,-1,-1,-1, 8, 5, 7}, {-1, 0,1,7, 8,-1,-1,-1, 9,-1}, { -1, 4,-1,-1, 2, -1, 3, 7, -1, 8}, { 13, 10, 8, 7, 19, 16, 11, 19, 15, 17 }};
     
             System.out.println("Initial State:");
         printGrid(f);
-        System.out.println("choose an option\n 1=backtracking \n 2=forward checking \n 3=forward checking with MRV ");
-        int type= input.nextInt();
+        /*if (solver!=null){
+            System.out.println("Random intial state:");
+            printGrid(solver);
+        }*/
+        int type;
+        do{
+        System.out.println("choose an option\n 1=backtracking \n 2=forward checking \n 3=forward checking with MRV or enter 4 to exit");
+        type= input.nextInt();
         
         
         switch (type) {
@@ -312,7 +320,7 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
            
         if(solveTennerGridbacktrack(f)){
             
-            System.out.println("solution:");
+            System.out.println("solution of example:");
             printGrid(f);
             System.out.println("\nNumber of Variable Assignments: " + assignments);
             System.out.println("N1umber of Consistency Checks: " + consistency);
@@ -322,8 +330,19 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
     else
           System.out.println("No solution found!");
             
-        
-                break;
+          /*if(solveTennerGridbacktrack(solver)){
+            
+            System.out.println("solution of random grid:");
+            printGrid(solver);
+            System.out.println("\nNumber of Variable Assignments: " + assignments);
+            System.out.println("N1umber of Consistency Checks: " + consistency);
+            System.out.println("Time Used to Solve the Problem: " + (endTime - startTime) + " milliseconds");
+    
+    }
+    else
+          System.out.println("No solution found!");*/
+                
+          break;
                 case 2:
                 domains = new boolean[numRows][numColumns][10]; // 3D array for domains
 
@@ -372,11 +391,23 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
                 System.out.println("Time Used to Solve the Problem: " + (endTime - startTime) + " milliseconds");
         
 
+            }
+            else
+              System.out.println("No solution found!");
+            break;
+             
+            case 4:
+              System.out.println("Exit program...");
+              break;
+          default:
+              System.out.println("Invalid input! Please enter a number from 1 to 4.");
+              break;
+            
+        }}while(type!=4)  ;  
                 
                 
                 
                 
                 
-                
-                }}}}
+    }}
           
