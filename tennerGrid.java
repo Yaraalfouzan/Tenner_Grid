@@ -63,43 +63,7 @@ static Scanner input=new Scanner(System.in);
             return grid;}
             
         
-        public static boolean solveBacktrack(int[][] grid, int row, int col) {
-            // Base case: reached the end of the grid (solved)
-            if (row == numRows - 1 && col == numColumns) {
-                return true;
-            }
         
-            // If we've reached the end of a row, move to the next row and start from the first column
-            if (col == numColumns) {
-                row++;
-                col = 0;
-            }
-        
-            // Skip pre-filled cells (represented by -1)
-            if (grid[row][col] != -1) {
-                return solveBacktrack(grid, row, col + 1);
-            }
-        
-            // Try all possible numbers (0 to 9) for the current cell
-            for (int num = 0; num < 10; num++) {
-                if (isValid(grid, row, col, num)) {
-                    grid[row][col] = num;
-                    assignments++; // Track number of assignments made (optional)
-        
-                    if (solveBacktrack(grid, row, col + 1)) {
-                        return true; // Successful placement, continue backtracking
-                    }
-        
-                    // Backtrack: if placement didn't lead to a solution, reset the cell
-                    grid[row][col] = -1;
-                    assignments++; // Track number of backtracks (optional)
-                }
-            }
-        
-            // No valid placement found in this cell
-            
-            return false;
-        }
         public static boolean solveTennerGridWithForwardChecking(int[][] grid, boolean[][][] domains) {
             int row = -1, col = -1;
             boolean isEmpty = true;
@@ -220,7 +184,59 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
         if (row == numRows -2 && sum != grid[numRows -1][col])
             return false;
         return true;}
-       
+        
+        
+        public static boolean solveTennerGridWithForwardCheckingMRV(int[][] grid, boolean[][][] domains) {
+            int minDomainSize = Integer.MAX_VALUE;
+            int row = -1, col = -1;
+            boolean isEmpty = true;
+        
+            // Find the cell with the minimum remaining values
+            for (int i = 0; i < numRows - 1; i++) {
+                for (int j = 0; j < numColumns; j++) {
+                    if (grid[i][j] == -1) {
+                        int validCount = countValidNumbers(domains[i][j]);
+                        if (validCount < minDomainSize) {
+                            minDomainSize = validCount;
+                            row = i;
+                            col = j;
+                            isEmpty = false;
+                        }
+                    }
+                }
+            }
+        
+            // If there is no empty cell, the grid is solved
+            if (isEmpty) return true;
+        
+            // Try filling the empty cell with valid numbers from the domain
+            for (int num = 0; num < 10; num++) {
+                if (domains[row][col][num] && isValid(grid, row, col, num)) {
+                    grid[row][col] = num;
+                    assignments++;
+                    forwardCheckdomain(grid, domains, row, col, num, false);
+        
+                    if (solveTennerGridWithForwardCheckingMRV(grid, domains)) {
+                        return true;
+                    }
+        
+                    grid[row][col] = -1; // Backtrack
+                    assignments++;
+                    forwardCheckdomain(grid, domains, row, col, num, true);
+                }
+            }
+        
+            return false;
+        }
+        
+        private static int countValidNumbers(boolean[] domain) {
+            int count = 0;
+            for (boolean valid : domain) {
+                if (valid) count++;
+            }
+            return count;
+        }
+        
 
         public static boolean solveTennerGridbacktrack(int[][] grid ) {
             int row = -1;
@@ -277,10 +293,8 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
         long startTime,endTime;
         int[][] solver=generateInitialState();
         int f[][] = {
-            {-1, 6,2,0,-1,-1,-1, 8, 5, 7}, {-1, 0,1,7, 8,-1,-1,-1, 9,-1}, { -1, 4,-1,-1, 2, -1, 3, 7, -1, 8}, { 13, 10, 8, 7, 19,16, 11, 19, 15, 17 }};
-           // int l[][] = {
-               // {-1, -1,5,3,-1,-1,6, -1, -1, -1}, {0, 7,0,4,6,5,-1,-1, 1,3}, { -1, 2,3,7, -1, 4, -1, 6, 5, -1}, { 10, 13, 17, 14, 8,16, 14, 17, 14, 12 }};
-            
+            {-1, 6,2,0,-1,-1,-1, 8, 5, 7}, {-1, 0,1,7, 8,-1,-1,-1, 9,-1}, { -1, 4,-1,-1, 2, -1, 3, 7, -1, 8}, { 13, 10, 8, 7, 19, 16, 11, 19, 15, 17 }};
+    
             System.out.println("Initial State:");
         printGrid(f);
         System.out.println("choose an option\n 1=backtracking \n 2=forward checking \n 3=forward checking with MRV ");
@@ -336,86 +350,20 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
                 
             
                     break;
-           /*  case 2:
-            boolean [][][] pos1 = new boolean[numRows][numColumns][10];
-        for(int i=0; i<numRows-1; i++)
-            for(int j=0; j<numColumns; j++)
-                for(int num=0; num<10; num++)
-                    pos1[i][j][num]=true;
-            startTime = System.currentTimeMillis();
-            solveForwardChecking(f,0,0,pos1);
-            endTime = System.currentTimeMillis();
-     
-       
-
-        if(solveForwardChecking(f,0,0,pos1)){
-           
-            System.out.println("solution:");
-            printGrid(f);
-            System.out.println("\nNumber of Variable Assignments: " + assignments);
-            System.out.println("N1umber of Consistency Checks: " + consistency);
-            System.out.println("Time Used to Solve the Problem: " + (endTime - startTime) + " milliseconds");
-    
-    }
-    else
-          System.out.println("No solution found!");
-            
                 
-                break;
-            
-                case 3: 
-                boolean[][][] pos2 = new boolean[numRows][numColumns][10];
-                for (int i = 0; i < numRows; i++) {
-                    for (int j = 0; j < numColumns; j++) {
-                        for (int num = 0; num < 10; num++) {
-                            pos2[i][j][num] = true;
-                        }
-                    }
-                }
-                startTime = System.currentTimeMillis();
-                if (solveForwardCheckingMRV(f, 0, 0, pos2)) {
-                    endTime = System.currentTimeMillis();
-                    System.out.println("Solution:");
-                    printGrid(f);
-                    System.out.println("\nNumber of Variable Assignments: " + assignments);
-                    System.out.println("Number of Consistency Checks: " + consistency);
-                    System.out.println("Time Used to Solve the Problem: " + (endTime - startTime) + " milliseconds");
-                } else {
-                    System.out.println("No solution found!");
-                }
-                break;
-               */case 4:
-            startTime = System.currentTimeMillis();
-            solveBacktrack(f, 0, 0);
-            endTime = System.currentTimeMillis();
-            
-      
-       
+                case 3:
+                domains = new boolean[numRows][numColumns][10]; // 3D array for domains
 
-        if(            solveBacktrack(f, 0, 0)        ){
-       
-            System.out.println("solution:");
-            printGrid(f);
-            System.out.println("\nNumber of Variable Assignments: " + assignments);
-            System.out.println("N1umber of Consistency Checks: " + consistency);
-            System.out.println("Time Used to Solve the Problem: " + (endTime - startTime) + " milliseconds");
-    
-    }
-    else
-          System.out.println("No solution found!");
-            
-        
-                break;
-}}}
-               /* case 5:
+                initializeDomains(domains);
+
                 startTime = System.currentTimeMillis();
-                solveTennerGridWithForwardChecking(f);
+                solveTennerGridWithForwardCheckingMRV(f,domains);
                 endTime = System.currentTimeMillis();
                 
           
            
     
-            if(            solveTennerGridWithForwardChecking(f)        ){
+            if(solveTennerGridWithForwardCheckingMRV(f,domains)){
            
                 System.out.println("solution:");
                 printGrid(f);
@@ -423,36 +371,12 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
                 System.out.println("N1umber of Consistency Checks: " + consistency);
                 System.out.println("Time Used to Solve the Problem: " + (endTime - startTime) + " milliseconds");
         
-        }
-        else
-              System.out.println("No solution found!");
+
                 
-            
-                    break;
                 
-    } */
-            
-        
-    
-       // solveTennerGrid(f);
-        /*printGrid(f);
-        System.out.println("/////////////:");
-        System.out.println("Initial State:");
-        printGrid(solver);
-
-
-        long startTime = System.currentTimeMillis();
-       if(solveTennerGrid(f)){
-       
-        long endTime = System.currentTimeMillis();
-        System.out.println("\nSolution Found:");
-        printGrid(solver);
-        System.out.println("\nNumber of Variable Assignments: " + assignments);
-        System.out.println("N1umber of Consistency Checks: " + consistency);
-        System.out.println("Time Used to Solve the Problem: " + (endTime - startTime) + " milliseconds");
-
-}
-else
-      System.out.println("No solution found!");
-        
-    }}*/
+                
+                
+                
+                
+                }}}}
+          
