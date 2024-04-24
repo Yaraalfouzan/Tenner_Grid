@@ -35,7 +35,7 @@ static Scanner input=new Scanner(System.in);
                         int num = random.nextInt(10); // Generate random number (0-9)
                         int counter=1;
                          found=true;
-                        while ( ! isValid(grid,row,col,num) ){
+                        while ( ! isValid(grid,row,col,num,1) ){
                         num = random.nextInt(10);
                         counter++;
                         if (counter==10){
@@ -85,7 +85,7 @@ static Scanner input=new Scanner(System.in);
         
             // Try filling the empty cell with valid numbers from domain
             for (int num = 0; num < 10; num++) {
-                if (domains[row][col][num] && isValid(grid, row, col, num)) {
+                if (domains[row][col][num] && isValid(grid, row, col, num,0)) {
                     grid[row][col] = num;
                     assignments++;
                     forwardCheckdomain(grid, domains, row, col, num, false);
@@ -153,36 +153,39 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
 }
 
     
-    static boolean isValid(int [][] grid ,int row, int col, int num) {
-        //checks that there is  no reptition of values in same row
-        for (int i = 0; i < numColumns; i++) {
-            consistency++;
-            if (grid[row][i] == num) {
-                return false;
-        } }
-       //checks no adjacent num are the same
-            try{
-            if (grid[row - 1][col] == num||grid[row + 1][col] == num || grid[row][col - 1] == num||(grid[row][col + 1] == num||grid[row + 1][col + 1] == num||
-                grid[row - 1][col - 1] == num||grid[row + 1][col - 1] == num ||grid[row - 1][col + 1] == num)) {
-                    consistency++;
-                    return false;
-                } } catch(Exception e){consistency--;}
-       // check sum of column
-        int sum = 0;
-        for (int i = 0; i < numRows -1; i++) {
-            if(grid[i][col]!=-1)
-                sum += grid[i][col];
-        }
+static boolean isValid(int [][] grid ,int row, int col, int num,int type) {
+    for (int i = 0; i < numColumns; i++) {
+        if (type!=1)
         consistency++;
-        //check sum after adding value to column
-        
-        sum += num;
-        if (sum > grid[numRows -1][col])
+        if (grid[row][i] == num) {
             return false;
-        if (row == numRows -2 && sum != grid[numRows -1][col])
-            return false;
-        return true;}
-        
+    } }
+   
+        try{
+        if (grid[row - 1][col] == num||grid[row + 1][col] == num || grid[row][col - 1] == num||(grid[row][col + 1] == num||grid[row + 1][col + 1] == num||
+            grid[row - 1][col - 1] == num||grid[row + 1][col - 1] == num ||grid[row - 1][col + 1] == num)) {
+                if (type!=1)
+                consistency++;
+                return false;
+            } } catch(Exception e){ if (type!=0) consistency--;}
+   
+   if (type==1||type==0){
+   int sum = 0;
+    for (int i = 0; i < numRows -1; i++) {
+        if(grid[i][col]!=-1)
+            sum += grid[i][col];
+    }
+    sum += num;
+    if (sum > grid[numRows -1][col])
+        return false;
+    if (row == numRows -2 && sum != grid[numRows -1][col])
+        return false;
+    return true;}
+
+    return true;
+ }
+
+
         
         public static boolean solveTennerGridWithForwardCheckingMRV(int[][] grid, boolean[][][] domains) {
             int minDomainSize = Integer.MAX_VALUE;
@@ -209,7 +212,7 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
         
             // Try filling the empty cell with valid numbers from the domain
             for (int num = 0; num < 10; num++) {
-                if (domains[row][col][num] && isValid(grid, row, col, num)) {
+                if (domains[row][col][num] && isValid(grid, row, col, num,0)) {
                     grid[row][col] = num;
                     assignments++;
                     forwardCheckdomain(grid, domains, row, col, num, false);
@@ -263,7 +266,7 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
           
             // Try filling the empty cell with numbers from 0 to 9
             for (int num = 0; num <= 9; num++) {
-                if (isValid( grid, row, col, num)) {
+                if (isValid( grid, row, col, num,0)) {
                     grid[row][col] = num;
                     assignments++;
                     if ( solveTennerGridbacktrack(grid) ) {
@@ -290,16 +293,16 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
     public static void main(String[] args) {
         long startTime,endTime;
         int[][] solver=generateInitialState();
-        /*while(solver==null){
+       /* *while(solver==null){
             solver=generateInitialState();
-        }*/
-
+        }
+*/
         int f[][] = {
             {-1, 6,2,0,-1,-1,-1, 8, 5, 7}, {-1, 0,1,7, 8,-1,-1,-1, 9,-1}, { -1, 4,-1,-1, 2, -1, 3, 7, -1, 8}, { 13, 10, 8, 7, 19, 16, 11, 19, 15, 17 }};
     
             System.out.println("Initial State:");
         printGrid(f);
-        /*if (solver!=null){
+      /* * if (solver!=null){
             System.out.println("Random intial state:");
             printGrid(solver);
         }*/
@@ -330,7 +333,7 @@ static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int
     else
           System.out.println("No solution found!");
             
-          /*if(solveTennerGridbacktrack(solver)){
+         /*  if(solveTennerGridbacktrack(solver)){
             
             System.out.println("solution of random grid:");
             printGrid(solver);
