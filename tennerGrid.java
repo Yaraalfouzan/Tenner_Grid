@@ -1,24 +1,20 @@
-
 import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 
 public class tennerGrid {
-    private int[][] grid;
     static int numRows=4;
     static int numColumns=10;
     static int consistency;
+    static int assignments;
     private static boolean found;
     private static boolean[][][] domains;
+    static Scanner input=new Scanner(System.in);
 
-    static int assignments;
-static Scanner input=new Scanner(System.in);
   
 
     // Method to generate an initial state adhering to the rules
-
-     // Method to generate an initial state adhering to the rules
-     static int[][] generateInitialState() {
+    static int[][] generateInitialState() {
 
         int[][] grid=new int[numRows][numColumns];
 
@@ -35,7 +31,7 @@ static Scanner input=new Scanner(System.in);
                         int num = random.nextInt(10); // Generate random number (0-9)
                         int counter=1;
                          found=true;
-                        while ( ! isValid(grid,row,col,num,1) ){
+                        while ( ! isValid(grid,row,col,num,0) ){
                         num = random.nextInt(10);
                         counter++;
                         if (counter==10){
@@ -53,141 +49,112 @@ static Scanner input=new Scanner(System.in);
                             return null;
 
             }}
-            printGrid(grid);
+           
             for (int col = 0; col < numColumns; col++) {
                 for (int row = 0; row < numRows - 1; row++) {
             if (random.nextBoolean())
             grid[row][col] = -1;}}
             return grid;}
             
+          
         
-        
-        public static boolean solveTennerGridWithForwardChecking(int[][] grid, boolean[][][] domains) {
-            int row = -1, col = -1;
-            boolean isEmpty = true;
-            int rows = numRows-1, cols = numColumns;
-        
-            // Find an empty cell
-            for (int i = 0; i <rows; i++) {
-                for (int j = 0; j < cols; j++) {
-                    if (grid[i][j] == -1) {
-                        row = i;
-                        col = j;
-                        isEmpty = false;
-                        break;
+      
+            public static boolean solveTennerGridWithForwardChecking(int[][] grid, boolean[][][] domains) {
+                
+                int row = -1, col = -1;
+                boolean isEmpty = true;
+                int rows = numRows-1, cols = numColumns;
+            
+                // Find an empty cell
+                for (int i = 0; i <rows; i++) {
+                    for (int j = 0; j < cols; j++) {
+                        if (grid[i][j] == -1) {
+                            row = i;
+                            col = j;
+                            isEmpty = false;
+                            break;
+                        }
+                    }
+                    if (!isEmpty) break;
+                }
+            
+                // If there is no empty cell, the grid is solved
+                if (isEmpty) return true;
+            
+                // Try filling the empty cell with valid numbers from domain
+                for (int num = 0; num < 10; num++) {
+                    if (domains[row][col][num] && isValid(grid, row, col, num,1)) {
+                        grid[row][col] = num;
+                        assignments++;
+                        forwardCheckdomain(grid, domains, row, col, num, false);
+                       
+                            if (solveTennerGridWithForwardChecking(grid, domains)) {
+                                return true;
+                            }
+                        
+                        grid[row][col] = -1; // Backtrack
+                        assignments++;
+                        forwardCheckdomain(grid, domains, row, col, num, true);
+                         
                     }
                 }
-                if (!isEmpty) break;
+            
+                return false;
             }
-        
-            // If there is no empty cell, the grid is solved
-            if (isEmpty) return true;
-        
-            // Try filling the empty cell with valid numbers from domain
-            for (int num = 0; num < 10; num++) {
-                if (domains[row][col][num] && isValid(grid, row, col, num,0)) {
-                    grid[row][col] = num;
-                    assignments++;
-                    forwardCheckdomain(grid, domains, row, col, num, false);
-                   
-                        if (solveTennerGridWithForwardChecking(grid, domains)) {
-                            return true;
-                        }
-                    
-                    grid[row][col] = -1; // Backtrack
-                    assignments++;
-                    forwardCheckdomain(grid, domains, row, col, num, true);
-                     
+            
+    // Initialize domains for all cells to be true for all numbers 0-9 call it in main b4 applying forward checking
+    static void initializeDomains(boolean[][][] grid) {
+        int rows = numRows-1;
+        int cols = numColumns;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                for (int num = 0; num < 10; num++) {
+                grid[i][j][num] = true; // Initially, all numbers are valid options
                 }
             }
-        
-            return false;
         }
-        
-// Initialize domains for all cells to be true for all numbers 0-9 call it in main b4 applying forward checking
-static void initializeDomains(boolean[][][] grid) {
-    int rows = numRows-1;
-    int cols = numColumns;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            for (int num = 0; num < 10; num++) {
-            grid[i][j][num] = true; // Initially, all numbers are valid options
+    }
+
+        static void safeUpdate(int r, int c, int n, boolean upd) {
+            if (r >= 0 && r < numRows && c >= 0 && c < numColumns) {
+                domains[r][c][n] = upd;
             }
         }
-    }
-}
-// Safe update helper function
-static void safeUpdate(int r, int c, int n, boolean upd) {
-    if (r >= 0 && r < numRows && c >= 0 && c < numColumns) {
-        domains[r][c][n] = upd;
-    }
-}
-static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int col, int num,boolean update) {
+
+
+        static void forwardCheckdomain(int[][] grid, boolean[][][] domains, int row, int col, int num,boolean update) {
    
-    // Update all columns in the given row for the specified number
-    for (int j = 0; j < numColumns; j++) {
-        domains[row][j][num] = update;
-    }
-
-     
-
-    // update the cell diagonally up-left from the current cell
-    safeUpdate(row - 1, col - 1, num, update);
-
-    // update the cell diagonally down-right from the current cell
-    safeUpdate(row + 1, col + 1, num, update);
-
-    // update the cell diagonally down-left from the current cell
-    safeUpdate(row + 1, col - 1, num, update);
-
-    // update the cell diagonally up-right from the current cell
-    safeUpdate(row - 1, col + 1, num, update);
-
-    // update the cell directly above the current cell
-    safeUpdate(row - 1, col, num, update);
-
-    // update the cell directly below the current cell
-    safeUpdate(row + 1, col, num, update);
-
-    
-}
-
-    
-static boolean isValid(int [][] grid ,int row, int col, int num,int type) {
-    for (int i = 0; i < numColumns; i++) {
-        if (type!=1)
-        consistency++;
-        if (grid[row][i] == num) {
-            return false;
-    } }
-   
-        try{
-        if (grid[row - 1][col] == num||grid[row + 1][col] == num || grid[row][col - 1] == num||(grid[row][col + 1] == num||grid[row + 1][col + 1] == num||
-            grid[row - 1][col - 1] == num||grid[row + 1][col - 1] == num ||grid[row - 1][col + 1] == num)) {
-                if (type!=1)
-                consistency++;
-                return false;
-            } } catch(Exception e){ if (type!=0) consistency--;}
-   
-   if (type==1||type==0){
-   int sum = 0;
-    for (int i = 0; i < numRows -1; i++) {
-        if(grid[i][col]!=-1)
-            sum += grid[i][col];
-    }
-    sum += num;
-    if (sum > grid[numRows -1][col])
-        return false;
-    if (row == numRows -2 && sum != grid[numRows -1][col])
-        return false;
-    return true;}
-
-    return true;
- }
-
-
+            // Update all columns in the given row for the specified number
+            for (int j = 0; j < numColumns; j++) {
+                domains[row][j][num] = update;
+            }
         
+             
+        
+            // update the cell diagonally up-left from the current cell
+            safeUpdate(row - 1, col - 1, num, update);
+        
+            // update the cell diagonally down-right from the current cell
+            safeUpdate(row + 1, col + 1, num, update);
+        
+            // update the cell diagonally down-left from the current cell
+            safeUpdate(row + 1, col - 1, num, update);
+        
+            // update the cell diagonally up-right from the current cell
+            safeUpdate(row - 1, col + 1, num, update);
+        
+            // update the cell directly above the current cell
+            safeUpdate(row - 1, col, num, update);
+        
+            // update the cell directly below the current cell
+            safeUpdate(row + 1, col, num, update);
+        
+            
+        }
+    
+
         public static boolean solveTennerGridWithForwardCheckingMRV(int[][] grid, boolean[][][] domains) {
+            
             int minDomainSize = Integer.MAX_VALUE;
             int row = -1, col = -1;
             boolean isEmpty = true;
@@ -212,7 +179,7 @@ static boolean isValid(int [][] grid ,int row, int col, int num,int type) {
         
             // Try filling the empty cell with valid numbers from the domain
             for (int num = 0; num < 10; num++) {
-                if (domains[row][col][num] && isValid(grid, row, col, num,0)) {
+                if (domains[row][col][num] && isValid(grid, row, col, num,1)) {
                     grid[row][col] = num;
                     assignments++;
                     forwardCheckdomain(grid, domains, row, col, num, false);
@@ -237,50 +204,90 @@ static boolean isValid(int [][] grid ,int row, int col, int num,int type) {
             }
             return count;
         }
-        
 
-        public static boolean solveTennerGridbacktrack(int[][] grid ) {
-            int row = -1;
-            int col = -1;
-            boolean isEmpty = true;
-           
-            // Find an empty cell
-            for (int i = 0; i < 4; i++) {
-                for (int j = 0; j < 10; j++) {
-                    if (grid[i][j] == -1) {
-                        row = i;
-                        col = j;
-                        isEmpty = false;
-                        break;
-                    }
-                }
-                if (!isEmpty) {
+        static void resetCounters(){
+            consistency = 0;
+            assignments = 0;
+        }
+        
+    
+    
+    static boolean solveTennerGridbacktrack(int[][] grid ) {
+        int row = -1;
+        int col = -1;
+        boolean isEmpty = true;
+
+        // Find an empty cell
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 10; j++) {
+                if (grid[i][j] == -1) {
+                    row = i;
+                    col = j;
+                    isEmpty = false;
                     break;
                 }
             }
-    
-            // If there is no empty cell, the grid is solved
-            if (isEmpty) {
-                return true;
+            if (!isEmpty) {
+                break;
             }
-          
-            // Try filling the empty cell with numbers from 0 to 9
-            for (int num = 0; num <= 9; num++) {
-                if (isValid( grid, row, col, num,0)) {
-                    grid[row][col] = num;
-                    assignments++;
-                    if ( solveTennerGridbacktrack(grid) ) {
-                        return true;
-                    }
-                    grid[row][col] = -1; // Backtrack
-                    assignments++;
-                }
-            }
-    
-            return false;}
-        
+        }
 
-     
+        // If there is no empty cell, the grid is solved
+        if (isEmpty) {
+            return true;
+        }
+
+        // Try filling the empty cell with numbers from 0 to 9
+        for (int num = 0; num <= 9; num++) {
+            if (isValid( grid, row, col, num,1)) {
+                grid[row][col] = num;
+                assignments++;
+                if ( solveTennerGridbacktrack(grid) ) {
+                    return true;
+                }
+                grid[row][col] = -1; // Backtrack
+                assignments++;
+            }
+        }
+
+        return false;
+    }
+
+    static boolean isValid(int [][] grid ,int row, int col, int num,int type) {
+        for (int i = 0; i < numColumns; i++) {
+            if (type!=0)
+            consistency++;
+            if (grid[row][i] == num) {
+                return false;
+        } }
+       
+            try{
+            if (grid[row - 1][col] == num||grid[row + 1][col] == num || grid[row][col - 1] == num||(grid[row][col + 1] == num||grid[row + 1][col + 1] == num||
+                grid[row - 1][col - 1] == num||grid[row + 1][col - 1] == num ||grid[row - 1][col + 1] == num)) {
+                    if (type!=0)
+                    consistency++;
+                    return false;
+                } } catch(Exception e){ if (type!=0) consistency--;}
+       
+       if (type==1){
+       int sum = 0;
+        for (int i = 0; i < numRows -1; i++) {
+            if(grid[i][col]!=-1)
+                sum += grid[i][col];
+        }
+        sum += num;
+        if (sum > grid[numRows -1][col])
+            return false;
+        if (row == numRows -2 && sum != grid[numRows -1][col])
+            return false;
+        return true;}
+
+        return true;
+     }
+
+
+ 
+
 
     // Method to print the gril
     static void printGrid(int [][] grid) {
@@ -291,40 +298,45 @@ static boolean isValid(int [][] grid ,int row, int col, int num,int type) {
     }
 
     public static void main(String[] args) {
-        long startTime,endTime;
-        int[][] solver=generateInitialState();
-       /* *while(solver==null){
-            solver=generateInitialState();
+        int[][] f=generateInitialState();
+        
+        while(f==null){
+            f=generateInitialState();
         }
-*/
-        int f[][] = {
-            {-1, 6,2,0,-1,-1,-1, 8, 5, 7}, {-1, 0,1,7, 8,-1,-1,-1, 9,-1}, { -1, 4,-1,-1, 2, -1, 3, 7, -1, 8}, { 13, 10, 8, 7, 19, 16, 11, 19, 15, 17 }};
+
+
+        System.out.println("Initial State:");
+
+        if (f!=null){
+            printGrid(f); 
+        }
+        
+        int[][] back = new int[f.length][];
+        int[][] Fc = new int[f.length][];
+        int[][] Mrv = new int[f.length][];
+        
+        // Copy contents of f to back, Fc, and Mrv
+        for (int i = 0; i < f.length; i++) {
+            back[i] = Arrays.copyOf(f[i], f[i].length);
+            Fc[i] = Arrays.copyOf(f[i], f[i].length);
+            Mrv[i] = Arrays.copyOf(f[i], f[i].length);
+        }
+
     
-            System.out.println("Initial State:");
-        printGrid(f);
-      /* * if (solver!=null){
-            System.out.println("Random intial state:");
-            printGrid(solver);
-        }*/
-        int type;
-        
-        System.out.println("choose an option\n 1=backtracking \n 2=forward checking \n 3=forward checking with MRV ");
-        type= input.nextInt();
-        
-        
-        switch (type) {
-            case 1:
+      
+            long startTime,endTime;
+           
+
             startTime = System.currentTimeMillis();
-            solveTennerGridbacktrack(f);
+            solveTennerGridbacktrack(back);
             endTime = System.currentTimeMillis();
             
       
        
            
-        if(solveTennerGridbacktrack(f)){
-            
-            System.out.println("solution of example:");
-            printGrid(f);
+        if(solveTennerGridbacktrack(back)){
+            System.out.println("solution of example with backtrack:");
+            printGrid(back);
             System.out.println("\nNumber of Variable Assignments: " + assignments);
             System.out.println("Number of Consistency Checks: " + consistency);
             System.out.println("Time Used to Solve the Problem: " + (endTime - startTime) + " milliseconds");
@@ -333,84 +345,65 @@ static boolean isValid(int [][] grid ,int row, int col, int num,int type) {
     else
           System.out.println("No solution found!");
             
-         /*  if(solveTennerGridbacktrack(solver)){
-            
-            System.out.println("solution of random grid:");
-            printGrid(solver);
-            System.out.println("\nNumber of Variable Assignments: " + assignments);
-            System.out.println("Number of Consistency Checks: " + consistency);
-            System.out.println("Time Used to Solve the Problem: " + (endTime - startTime) + " milliseconds");
-    
-    }
-    else
-          System.out.println("No solution found!");*/
-                
-          break;
-                case 2:
-                domains = new boolean[numRows][numColumns][10]; // 3D array for domains
 
-                initializeDomains(domains);
-
-                startTime = System.currentTimeMillis();
-                solveTennerGridWithForwardChecking(f,domains);
-                endTime = System.currentTimeMillis();
-                
-          
-           
-    
-            if(solveTennerGridWithForwardChecking(f,domains)){
-           
-                System.out.println("solution:");
-                printGrid(f);
-                System.out.println("\nNumber of Variable Assignments: " + assignments);
-                System.out.println("Number of Consistency Checks: " + consistency);
-                System.out.println("Time Used to Solve the Problem: " + (endTime - startTime) + " milliseconds");
+          resetCounters();
         
-        }
-        else
-              System.out.println("No solution found!");
-                
-            
-                    break;
-                
-                case 3:
-                domains = new boolean[numRows][numColumns][10]; // 3D array for domains
+          long FstartTime,FendTime;
 
-                initializeDomains(domains);
-
-                startTime = System.currentTimeMillis();
-                solveTennerGridWithForwardCheckingMRV(f,domains);
-                endTime = System.currentTimeMillis();
-                
           
-           
-    
-            if(solveTennerGridWithForwardCheckingMRV(f,domains)){
-           
-                System.out.println("solution:");
-                printGrid(f);
-                System.out.println("\nNumber of Variable Assignments: " + assignments);
-                System.out.println("Number of Consistency Checks: " + consistency);
-                System.out.println("Time Used to Solve the Problem: " + (endTime - startTime) + " milliseconds");
-        
+          domains = new boolean[numRows][numColumns][10]; // 3D array for domains
 
-            }
-            else
-              System.out.println("No solution found!");
-            break;
-             
-           /*  case 4:
-              System.out.println("Exit program...");
-              break;*/
-          default:
-              System.out.println("Invalid input! Please enter a number from 1 to 3.");
-              break;
+          initializeDomains(domains);
+          
+
+          FstartTime = System.currentTimeMillis();
+          solveTennerGridWithForwardChecking(Fc,domains);
+          FendTime = System.currentTimeMillis();
+          
+    
+          
+
+      if(solveTennerGridWithForwardChecking(Fc,domains)){
+     
+          System.out.println("solution with FC:");
+          printGrid(Fc);
+          System.out.println("\nNumber of Variable Assignments: " + assignments);
+          System.out.println("Number of Consistency Checks: " + consistency);
+          System.out.println("Time Used to Solve the Problem: " + (FendTime - FstartTime) + " milliseconds");
+  
+  }
+  else
+        System.out.println("No solution found!");
+          
+      
+        resetCounters();
+              
+    
+              long MstartTime,MendTime;
             
-        }
-                
-                
-                
-                
-                
+
+              domains = new boolean[numRows][numColumns][10]; // 3D array for domains
+
+              initializeDomains(domains);
+
+              MstartTime = System.currentTimeMillis();
+              solveTennerGridWithForwardCheckingMRV(Mrv,domains);
+              MendTime = System.currentTimeMillis();
+              
+        
+         
+  
+          if(solveTennerGridWithForwardCheckingMRV(Mrv,domains)){
+         
+              System.out.println("solution with FC+MRV:");
+              printGrid(Mrv);
+              System.out.println("\nNumber of Variable Assignments: " + assignments);
+              System.out.println("Number of Consistency Checks: " + consistency);
+              System.out.println("Time Used to Solve the Problem: " + (MendTime - MstartTime) + " milliseconds");
+      
+
+          }
+          else
+            System.out.println("No solution found!");
+        
     }}
-          
